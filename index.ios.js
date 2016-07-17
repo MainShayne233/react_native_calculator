@@ -18,16 +18,21 @@ class Keypad extends Component {
 
   row_vals(){
     return([
-      ['7','8','9','+','*'],
-      ['4','5','6','-','/'],
-      ['1','2','3','0','=']
+      ['(',')','%','AC',],
+      ['7','8','9','/',],
+      ['4','5','6','*',],
+      ['1','2','3','-',],
+      ['0','.','=','+']
     ]);
   }
 
   rows(){
     var rows = [];
+    var klass = this;
     this.row_vals().forEach(function (row, index) {
-      rows.push(<KeypadRow nums={row} key={index}/>)
+      rows.push(
+        <KeypadRow nums={row} key={index} appendToReadout={klass.props.appendToReadout}/>
+      )
     });
     return rows;
   }
@@ -42,14 +47,14 @@ class Keypad extends Component {
 }
 
 class KeypadRow extends Component {
-
   btns() {
     var btns = [];
-
+    var klass = this;
     this.props.nums.forEach(function (num, index){
-      btns.push(<NumBtn num={num} key={index}/>);
+      btns.push(
+        <Key num={num} key={index} appendToReadout={klass.props.appendToReadout}/>
+      );
     });
-
     return btns;
   }
 
@@ -63,15 +68,16 @@ class KeypadRow extends Component {
 
 }
 
-class NumBtn extends Component {
+class Key extends Component {
 
   handlePress(){
-    console.log(this.props);
+    this.props.appendToReadout(this.props.num);
   }
 
   render() {
     return (
       <Button
+        onPress={this.handlePress.bind(this)}
         containerStyle={styles.btnContainer}
         style={styles.btn}>
         {this.props.num}
@@ -80,11 +86,36 @@ class NumBtn extends Component {
   }
 }
 
+class Display extends Component{
+  render(){
+    return(
+      <Text style={styles.display}>{this.props.data}</Text>
+    );
+  }
+}
+
 class Calculator extends Component {
+
+  componentWillMount(){
+    this.setState({readOut: ' '});
+  }
+
+  interpretKey(key){
+    
+  }
+
+  appendToReadout(val){
+    this.setState({
+      readOut: this.state.readOut + val
+    })
+  }
+
+
   render() {
     return (
-      <View style={styles.container}>
-        <Keypad/>
+      <View style={styles.calculator}>
+        <Display data={this.state.readOut}/>
+        <Keypad appendToReadout={this.appendToReadout.bind(this)}/>
       </View>
     );
   }
@@ -93,14 +124,14 @@ class Calculator extends Component {
 const styles = StyleSheet.create({
 
   btn: {
-    fontSize: 20,
-    width: 10
+    fontSize: 30,
+    width: 50,
+    height: 50
   },
 
   btnContainer: {
     margin: 2,
     padding:10,
-    height:45,
     borderRadius:3,
     borderWidth: 1,
     borderColor: 'blue',
@@ -112,23 +143,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  container: {
+
+  display: {
+    fontSize: 50,
+    marginLeft: 50
+  },
+
+  calculator: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#F5FCFF',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+
 });
 
 AppRegistry.registerComponent('Calculator', () => Calculator);
